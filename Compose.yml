@@ -1,0 +1,28 @@
+services:
+  api:
+    build: .
+    container_name: taskflow-api
+    ports:
+      - "5000:5000"
+    networks:
+      - taskflow-network
+
+  mongo:
+    image: mongo
+    container_name: taskflow-mongo
+    volumes:
+      - taskflow-mongo:/data/db
+    networks:
+      - taskflow-network
+
+  redis:
+    image: redis:alpine
+    container_name: taskflow-redis
+    networks:
+      - taskflow-network
+
+volumes:
+  taskflow-mongo:
+
+networks:
+  taskflow-network:
