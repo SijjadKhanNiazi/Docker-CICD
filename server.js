@@ -1,16 +1,56 @@
-import express from "express";
+const express = require("express");
+const mongoose = require("mongoose");
+const { createClient } = require("redis");
+
 const app = express();
 
 app.use(express.json());
 
+const PORT = 5000;
+
+const mongoUrl = process.env.MONGODB_URL;
+const redisUrl = process.env.REDIS_URL;
+
+const redisClient = createClient({
+  url: redisUrl,
+});
+
+redisClient.on("error", (error) => {
+  console.error("Redis error:", error);
+});
+
+async function startServer() {
+  try {
+    await mongoose.connect(mongoUrl);
+
+    console.log("MongoDB connected successfully");
+
+    await redisClient.connect();
+
+    console.log("Redis connected successfully");
+
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error("Application startup failed:", error);
+    process.exit(1);
+  }
+}
+
 app.get("/", (req, res) => {
-  console.log("hello world");
   res.json({
-    message: "Hello from docker",
+    message: "Docker API is working",
+  });
+});
+app.get("/cache", async (req, res) => {
+  await redisClient.set("message", "Hello from Redis");
+
+  const value = await redisClient.get("message");
+
+  res.json({
+    value,
   });
 });
 
-const PORT = process.env.PORT ?? 5000;
-app.listen(PORT, () => {
-  console.log(`app is running on port ${PORT}`);
-});
+startServer();
