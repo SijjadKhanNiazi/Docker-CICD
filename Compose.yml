@@ -11,6 +11,13 @@ services:
       MONGODB_URL: ${MONGODB_URL}
       REDIS_URL: ${REDIS_URL}
 
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+      redis:
+        condition: service_healthy
+
     networks:
       - taskflow-network
 
@@ -24,12 +31,26 @@ services:
     networks:
       - taskflow-network
 
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
   redis:
     image: redis:alpine
     container_name: taskflow-redis
 
     networks:
       - taskflow-network
+
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
 
 volumes:
   taskflow-mongo:
