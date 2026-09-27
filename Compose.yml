@@ -3,6 +3,8 @@ services:
     build: .
     container_name: taskflow-api
 
+    restart: unless-stopped
+
     ports:
       - "5000:5000"
 
@@ -14,9 +16,14 @@ services:
     depends_on:
       mongo:
         condition: service_healthy
-
       redis:
         condition: service_healthy
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
     networks:
       - taskflow-network
@@ -25,11 +32,10 @@ services:
     image: mongo
     container_name: taskflow-mongo
 
+    restart: unless-stopped
+
     volumes:
       - taskflow-mongo:/data/db
-
-    networks:
-      - taskflow-network
 
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
@@ -38,12 +44,14 @@ services:
       retries: 5
       start_period: 10s
 
+    networks:
+      - taskflow-network
+
   redis:
     image: redis:alpine
     container_name: taskflow-redis
 
-    networks:
-      - taskflow-network
+    restart: unless-stopped
 
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -51,6 +59,9 @@ services:
       timeout: 5s
       retries: 5
       start_period: 5s
+
+    networks:
+      - taskflow-network
 
 volumes:
   taskflow-mongo:
