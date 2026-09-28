@@ -12,27 +12,53 @@ services:
     networks:
       - taskflow-network
 
-  api:
-    build: .
-    container_name: taskflow-api
+  api1:
+  build: .
+  container_name: taskflow-api-1
 
-    restart: unless-stopped
-    environment:
-      NODE_ENV: ${NODE_ENV}
-      MONGODB_URL: ${MONGODB_URL}
-      REDIS_URL: ${REDIS_URL}
-    depends_on:
-      mongo:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-    networks:
-      - taskflow-network
+  environment:
+    NODE_ENV: production
+    INSTANCE_NAME: api-1
+    MONGODB_URL: mongodb://mongo:27017/taskflow
+    REDIS_URL: redis://redis:6379
+
+  expose:
+    - "5000"
+
+  networks:
+    - taskflow-network
+
+api2:
+  build: .
+  container_name: taskflow-api-2
+
+  environment:
+    NODE_ENV: production
+    INSTANCE_NAME: api-2
+    MONGODB_URL: mongodb://mongo:27017/taskflow
+    REDIS_URL: redis://redis:6379
+
+  expose:
+    - "5000"
+
+  networks:
+    - taskflow-network
+
+api3:
+  build: .
+  container_name: taskflow-api-3
+
+  environment:
+    NODE_ENV: production
+    INSTANCE_NAME: api-3
+    MONGODB_URL: mongodb://mongo:27017/taskflow
+    REDIS_URL: redis://redis:6379
+
+  expose:
+    - "5000"
+
+  networks:
+    - taskflow-network
 
   mongo:
     image: mongo
