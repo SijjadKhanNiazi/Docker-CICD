@@ -43,6 +43,11 @@ app.get("/", (req, res) => {
     message: "Docker API is working",
   });
 });
+app.get("/instance", (req, res) => {
+  res.json({
+    instance: process.env.INSTANCE_NAME || "unknown",
+  });
+});
 app.get("/cache", async (req, res) => {
   await redisClient.set("message", "Hello from Redis");
 
