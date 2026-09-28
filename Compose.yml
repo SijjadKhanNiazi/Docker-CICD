@@ -1,65 +1,64 @@
 services:
+  nginx:
+    image: nginx:alpine
+    container_name: taskflow-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      api:
+        condition: service_started
+    networks:
+      - taskflow-network
+
   api:
     build: .
     container_name: taskflow-api
 
     restart: unless-stopped
-
-    ports:
-      - "5000:5000"
-
     environment:
       NODE_ENV: ${NODE_ENV}
       MONGODB_URL: ${MONGODB_URL}
       REDIS_URL: ${REDIS_URL}
-
     depends_on:
       mongo:
         condition: service_healthy
       redis:
         condition: service_healthy
-
     logging:
       driver: json-file
       options:
         max-size: "10m"
         max-file: "3"
-
     networks:
       - taskflow-network
 
   mongo:
     image: mongo
     container_name: taskflow-mongo
-
     restart: unless-stopped
-
     volumes:
       - taskflow-mongo:/data/db
-
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
-
     networks:
       - taskflow-network
 
   redis:
     image: redis:alpine
     container_name: taskflow-redis
-
     restart: unless-stopped
-
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 5s
-
     networks:
       - taskflow-network
 
