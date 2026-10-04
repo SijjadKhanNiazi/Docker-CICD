@@ -49,7 +49,7 @@ app.get("/instance", (req, res) => {
   });
 });
 app.get("/cache", async (req, res) => {
-  await redisClient.set("message", "Hello from Redis");
+  await redisClient.set("message", "Hello from redis cache!");
 
   const value = await redisClient.get("message");
 
