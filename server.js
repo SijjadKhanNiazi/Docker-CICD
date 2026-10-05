@@ -33,7 +33,7 @@ async function startServer() {
       console.log(`Server is running on port ${PORT}`);
     });
   } catch (error) {
-    console.error("Application startup failed:", error);
+    console.error("Application failed in startup:", error);
     process.exit(1);
   }
 }
